@@ -1,12 +1,9 @@
 // =========================================================================
 // HỆ THỐNG PHÂN TÍCH VÀ ĐỒNG BỘ CẤU HÌNH LIÊN KẾT (TỆP TIN PHỤ CHỐNG BẺ KHÓA)
 // =========================================================================
-
-// Băm nhỏ địa chỉ kết nối Database bản quyền để ẩn giấu
 const _0xDbPathBase = "https://ht-thue-e9d26";
 const _0xDbPathDomain = "-default-rtdb.firebaseio.com";
 
-// Định nghĩa cấu hình hệ thống bằng cách gộp chuỗi ký tự ẩn
 const _sysGlobalConfig = {
     apiKey: "AIzaSyB4c" + "rlGh-TWjsa" + "aGVNDbod0y" + "Z6gdD70aAc",
     authDomain: "ht-thue-e9d26" + ".firebaseapp.com",
@@ -17,7 +14,6 @@ const _sysGlobalConfig = {
     appId: "1:626706042866:web:" + "6e7cfa5306" + "763ab237a56b"
 };
 
-// Đăng ký trạng thái môi trường cốt lõi (Kiểm tra chéo với file chính)
 window.__SECURITY_CORE_LOADED__ = true;
 
 // Tiến trình chạy ngầm liên tục kiểm tra sự tồn tại của hàm bản quyền ở file chính
