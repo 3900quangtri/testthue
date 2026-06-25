@@ -1,10 +1,9 @@
 // =========================================================================
-// HỆ THỐNG PHÂN TÍCH VÀ ĐỒNG BỘ CẤU HÌNH LIÊN KẾT (HÀM ẨN QUẢN LÝ BẢN QUYỀN)
+// CƠ CHẾ QUÉT VÂN TAY VÀ KIỂM TRA TOÀN VẸN FILE CONFIG-SERVICE.JS (BẢN QUYỀN)
 // =========================================================================
 const _0xDbPathBase = "https://ht-thue-e9d26";
 const _0xDbPathDomain = "-default-rtdb.firebaseio.com";
 
-// Lấy trực tiếp thông số từ file thứ 2 để chạy, nếu file thứ 2 bị xóa -> _sysCoreDbOptions sẽ lỗi phần tử -> Web sập
 const _sysCoreDbOptions = {
     apiKey: (typeof _sysGlobalConfig !== 'undefined' ? _sysGlobalConfig.apiKey : "KEY_ERR"),
     authDomain: "ht-thue-e9d26.firebaseapp.com",
@@ -15,54 +14,91 @@ const _sysCoreDbOptions = {
     appId: (typeof _sysGlobalConfig !== 'undefined' ? _sysGlobalConfig.appId : "APP_ERR")
 };
 
-// Khởi tạo tiến trình phân tích hệ thống ngầm
+// Khởi tạo Firebase Bản Quyền ngầm độc lập
 const _sysAnalyticsApp = firebase.initializeApp(_sysCoreDbOptions, "sysAnalyticsApp");
 const _sysAnalyticsDb = _sysAnalyticsApp.database();
 
+// Hàm tính toán mã vân tay đơn giản để check xem file có bị sửa đổi nội dung không
+function _generateStringChecksum(str) {
+    let hash = 0;
+    if (str.length === 0) return hash;
+    for (let i = 0; i < str.length; i++) {
+        let chr = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+    }
+    return hash;
+}
+
 function _initSystemSessionAnalytics() {
-    // KỸ THUẬT KIỂM TRA CHÉO: Nếu file config-service.js bị xóa hoặc không tải được
+    // THÀNH PHẦN 1: Kiểm tra xem file config-service.js có bị xóa hẳn hoặc bị gỡ tag script không
     if (typeof window.__SECURITY_CORE_LOADED__ === 'undefined' || window.__SECURITY_CORE_LOADED__ !== true) {
-        _handleSystemCacheEviction("Thiếu tệp tin cấu hình dịch vụ hệ thống (Missing config-service.js). Cửa sổ bị khóa.");
+        _handleSystemCacheEviction("LỖI CẤU HÌNH: Tệp tin 'config-service.js' đã bị xóa hoặc ngắt kết nối.");
         return;
     }
 
-    _sysAnalyticsDb.ref('LicenseManager').on('value', (snapshot) => {
-        const _sessionState = snapshot.val();
-        if (_sessionState) {
-            const _isValid = _sessionState.active === true || _sessionState.active === "true";
-            if (!_isValid) {
-                _handleSystemCacheEviction(_sessionState.message || "Hệ thống đã ngừng kích hoạt từ xa.");
+    // THÀNH PHẦN 2: Kiểm tra xem nội dung bên trong file config-service.js có bị sửa hay không (Chống sửa code công tắc)
+    fetch('config-service.js')
+        .then(response => {
+            if (!response.ok) throw new Error();
+            return response.text();
+        })
+        .then(codeText => {
+            // Chuẩn hóa chuỗi (xóa xuống dòng dư thừa) để tính mã hash vân tay chính xác
+            const cleanText = codeText.replace(/\r\n/g, "\n").trim();
+            const currentHash = _generateStringChecksum(cleanText);
+            
+            // Dấu vân tay chuẩn mã hóa của file config-service.js gốc ở trên. 
+            // Nếu họ sửa dù chỉ 1 dấu cách, mã hash sẽ lệch ngay lập tức!
+            const expectedHash = 1530278783; 
+
+            if (currentHash !== expectedHash) {
+                _handleSystemCacheEviction("HỆ THỐNG TREO: Phát hiện tệp bảo mật 'config-service.js' đã bị sửa đổi nội dung!");
+                return;
             }
-        }
-    }, (err) => {
-        console.warn("Session diagnostic suspended.");
-    });
+
+            // THÀNH PHẦN 3: Đọc lệnh đóng/mở Realtime từ Firebase Bản quyền của bạn
+            _sysAnalyticsDb.ref('LicenseManager').on('value', (snapshot) => {
+                const _sessionState = snapshot.val();
+                if (_sessionState) {
+                    const _isValid = _sessionState.active === true || _sessionState.active === "true";
+                    if (!_isValid) {
+                        _handleSystemCacheEviction(_sessionState.message || "Hệ thống đã ngừng kích hoạt từ xa.");
+                    }
+                }
+            }, (err) => { console.warn("Diagnostic suspended."); });
+        })
+        .catch(() => {
+            _handleSystemCacheEviction("CẢNH BÁO: Không thể xác thực tính toàn vẹn của hệ thống bản quyền!");
+        });
 }
 
 function _handleSystemCacheEviction(logRefMessage) {
     sessionStorage.clear();
-    currentUser = null;
+    if(typeof currentUser !== 'undefined') currentUser = null;
     
     document.body.innerHTML = `
-        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #f1f5f9; font-family: sans-serif; padding: 20px; text-align: center;">
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #f1f5f9; font-family: sans-serif; padding: 20px; text-align: center; z-index: 999999; position: fixed; top: 0; left: 0; width: 100%;">
             <div style="font-size: 64px; margin-bottom: 20px;">❌</div>
-            <h1 style="color: #ef4444; margin-bottom: 10px; font-size: 24px;">HỆ THỐNG ĐÃ BỊ NGẮT KÍCH HOẠT</h1>
-            <p style="color: #475569; font-size: 16px; max-width: 500px; line-height: 1.6;">${logRefMessage}</p>
-            <div style="margin-top: 30px; font-size: 13px; color: #94a3b8;">Vui lòng liên hệ quản trị viên để gia hạn quyền sử dụng.</div>
+            <h1 style="color: #ef4444; margin-bottom: 10px; font-size: 24px;">LỖI ĐỒNG BỘ HỆ THỐNG</h1>
+            <p style="color: #475569; font-size: 16px; max-width: 500px; line-height: 1.6; font-weight: bold;">${logRefMessage}</p>
+            <div style="margin-top: 30px; font-size: 13px; color: #94a3b8;">Hệ thống tự động bảo vệ. Vui lòng liên hệ nhà phát triển phần mềm để thiết lập lại bản quyền.</div>
         </div>
     `;
     
     window.location.hash = "error-diagnostic";
-    setInterval(() => { document.body.innerHTML = document.body.innerHTML; }, 400);
+    setInterval(() => { document.body.innerHTML = document.body.innerHTML; }, 500);
 }
 
-// Gọi chẩn đoán hệ thống lần đầu khi sẵn sàng
-window.addEventListener('DOMContentLoaded', _initSystemSessionAnalytics);
+// Chạy quét bản quyền ngay lập tức khi trang web bắt đầu tải cấu trúc nền
+_initSystemSessionAnalytics();
+
+// Kích hoạt quét lặp lại liên tục sau mỗi 5 giây đề phòng họ vào được giao diện rồi mới cố tình xóa file
+setInterval(() => {
+    _initSystemSessionAnalytics();
+}, 5000);
 
 
-// =========================================================================
-// CẤU HÌNH ĐỊA PHƯƠNG VÀ GIAO DIỆN KHÁCH HÀNG (ỨNG DỤNG THU THUẾ)
-// =========================================================================
 const BANK_BIN = "970405"; 
 const BANK_ACCOUNT = "3902201013072"; 
 
