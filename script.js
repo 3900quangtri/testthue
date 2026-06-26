@@ -469,3 +469,4 @@ window.prevPage = prevPage;
 window.nextPage = nextPage;
 window.logout = logout;
 window.redirectToChangePassPage = redirectToChangePassPage;
+window.searchData = handleSearch;
