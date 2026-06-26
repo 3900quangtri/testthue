@@ -1,16 +1,21 @@
 // CẤU HÌNH NGÂN HÀNG ĐÍCH
 // LƯU Ý: Chuyển đổi mã chữ sang mã số BIN 6 số của Napas (VBA -> 970405) để API POST chạy được
 import { executeGenerateQr, executeVerifyAndPayChange } from "./app.js";
-// ĐẨY KHAI BÁO BIẾN TOÀN CỤC CHO POPUP LÊN ĐẦU
 window.isUpdatingToggle = false; 
 window.clearCurrentSelectedIdSum = function() { currentSelectedIdSum = null; };
-// Sử dụng sự kiện DOMContentLoaded để đảm bảo toàn bộ file script.js đã được đọc xong xuôi
+
+// Đợi giao diện HTML tải xong sẽ tự động gắn cổng lắng nghe sự kiện vào nút bấm
 document.addEventListener("DOMContentLoaded", () => {
-    if (typeof loginWithUsernamePassword === "function") window.loginWithUsernamePassword = loginWithUsernamePassword;
-    if (typeof handleSearch === "function") {
-        window.handleSearch = handleSearch;
-        window.searchData = handleSearch; // Ánh xạ cả 2 tên đề phòng index.html gọi sai
+    // 1. Gắn sự kiện Click cho nút Tìm kiếm thông qua ID
+    const btnSearch = document.getElementById("btnSearch");
+    if (btnSearch) {
+        btnSearch.addEventListener("click", () => {
+            handleSearch();
+        });
     }
+
+    // 2. Khai báo lộ diện các hàm còn lại ra Window một cách an toàn
+    if (typeof loginWithUsernamePassword === "function") window.loginWithUsernamePassword = loginWithUsernamePassword;
     if (typeof clearSearch === "function") window.clearSearch = clearSearch;
     if (typeof prevPage === "function") window.prevPage = prevPage;
     if (typeof nextPage === "function") window.nextPage = nextPage;
@@ -20,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
         window.goToChangePassPage = redirectToChangePassPage;
     }
 });
-
 const BANK_BIN = "970405"; // 970405 là mã định danh BIN của Agribank
 const BANK_ACCOUNT = "3902201013072"; 
 
