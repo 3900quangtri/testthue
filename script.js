@@ -3,18 +3,24 @@
 import { executeGenerateQr, executeVerifyAndPayChange } from "./app.js";
 // ĐẨY KHAI BÁO BIẾN TOÀN CỤC CHO POPUP LÊN ĐẦU
 window.isUpdatingToggle = false; 
-window.clearCurrentSelectedIdSum = function() {
-    currentSelectedIdSum = null;
-};
-window.loginWithUsernamePassword = function() { loginWithUsernamePassword(); };
-window.handleSearch = function() { handleSearch(); };
-window.searchData = function() { handleSearch(); };
-window.clearSearch = function() { clearSearch(); };
-window.prevPage = function() { prevPage(); };
-window.nextPage = function() { nextPage(); };
-window.logout = function() { logout(); };
-window.redirectToChangePassPage = function() { redirectToChangePassPage(); };
-window.goToChangePassPage = function() { redirectToChangePassPage(); };
+window.clearCurrentSelectedIdSum = function() { currentSelectedIdSum = null; };
+// Sử dụng sự kiện DOMContentLoaded để đảm bảo toàn bộ file script.js đã được đọc xong xuôi
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof loginWithUsernamePassword === "function") window.loginWithUsernamePassword = loginWithUsernamePassword;
+    if (typeof handleSearch === "function") {
+        window.handleSearch = handleSearch;
+        window.searchData = handleSearch; // Ánh xạ cả 2 tên đề phòng index.html gọi sai
+    }
+    if (typeof clearSearch === "function") window.clearSearch = clearSearch;
+    if (typeof prevPage === "function") window.prevPage = prevPage;
+    if (typeof nextPage === "function") window.nextPage = nextPage;
+    if (typeof logout === "function") window.logout = logout;
+    if (typeof redirectToChangePassPage === "function") {
+        window.redirectToChangePassPage = redirectToChangePassPage;
+        window.goToChangePassPage = redirectToChangePassPage;
+    }
+});
+
 const BANK_BIN = "970405"; // 970405 là mã định danh BIN của Agribank
 const BANK_ACCOUNT = "3902201013072"; 
 
@@ -475,18 +481,18 @@ function goToChangePassPage() {
         alert("Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại!");
     }
 }
-// Đẩy tất cả các hàm tương tác sự kiện HTML ra phạm vi toàn cục (Global)
-window.loginWithUsernamePassword = loginWithUsernamePassword;
-window.handleSearch = handleSearch;
-window.clearSearch = clearSearch;
-window.prevPage = prevPage;
-window.nextPage = nextPage;
-window.redirectToChangePassPage = redirectToChangePassPage;
-window.searchData = handleSearch;
-window.searchData = handleSearch; // Ánh xạ dự phòng lỗi searchData
-// 1. Khai báo lộ diện hàm Đăng xuất
-window.logout = logout;
-// 2. Khai báo lộ diện hàm Đổi mật khẩu gốc của bạn
-window.redirectToChangePassPage = redirectToChangePassPage;
-// 3. Tạo một liên kết ánh xạ (Alias) để nếu HTML gọi goToChangePassPage() thì hệ thống vẫn hiểu và chạy đúng
-window.goToChangePassPage = redirectToChangePassPage;
+// // Đẩy tất cả các hàm tương tác sự kiện HTML ra phạm vi toàn cục (Global)
+// window.loginWithUsernamePassword = loginWithUsernamePassword;
+// window.handleSearch = handleSearch;
+// window.clearSearch = clearSearch;
+// window.prevPage = prevPage;
+// window.nextPage = nextPage;
+// window.redirectToChangePassPage = redirectToChangePassPage;
+// window.searchData = handleSearch;
+// window.searchData = handleSearch; // Ánh xạ dự phòng lỗi searchData
+// // 1. Khai báo lộ diện hàm Đăng xuất
+// window.logout = logout;
+// // 2. Khai báo lộ diện hàm Đổi mật khẩu gốc của bạn
+// window.redirectToChangePassPage = redirectToChangePassPage;
+// // 3. Tạo một liên kết ánh xạ (Alias) để nếu HTML gọi goToChangePassPage() thì hệ thống vẫn hiểu và chạy đúng
+// window.goToChangePassPage = redirectToChangePassPage;
