@@ -461,3 +461,11 @@ function goToChangePassPage() {
         alert("Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại!");
     }
 }
+// Đẩy tất cả các hàm tương tác sự kiện HTML ra phạm vi toàn cục (Global)
+window.loginWithUsernamePassword = loginWithUsernamePassword;
+window.handleSearch = handleSearch;
+window.clearSearch = clearSearch;
+window.prevPage = prevPage;
+window.nextPage = nextPage;
+window.logout = logout;
+window.redirectToChangePassPage = redirectToChangePassPage;
