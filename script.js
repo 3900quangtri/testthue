@@ -1,8 +1,12 @@
-// CẤU HÌNH NGÂN HÀNG ĐÍCH
-// LƯU Ý: Chuyển đổi mã chữ sang mã số BIN 6 số của Napas (VBA -> 970405) để API POST chạy được
+// ==========================================================================
+// 1. KẾT NỐI VỚI FILE BẢO MẬT APP.JS
+// ==========================================================================
 import { executeGenerateQr, executeVerifyAndPayChange } from "./app.js";
 
-const BANK_BIN = "970405"; // 970405 là mã định danh BIN của Agribank
+// ==========================================================================
+// 2. CẤU HÌNH NGÂN HÀNG ĐÍCH & FIREBASE
+// ==========================================================================
+const BANK_BIN = "970405"; // Mã định danh BIN của Agribank
 const BANK_ACCOUNT = "3902201013072"; 
 
 const firebaseConfig = {
@@ -15,22 +19,25 @@ const firebaseConfig = {
     appId: "1:1008017359572:web:f70cf40778e600e8deb141"
 };
 
-firebase.initializeApp(firebaseConfig);
+// Khởi tạo Firebase nếu chưa có
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.database();
-window.isUpdatingToggle = false; 
-window.clearCurrentSelectedIdSum = function() {
-    currentSelectedIdSum = null;
-};
+
+// Các biến toàn cục quản lý dữ liệu
 let allData = [];
 let filteredData = []; 
 let currentSelectedIdSum = null; 
-let isUpdatingToggle = false; 
-
 let currentUser = JSON.parse(sessionStorage.getItem('customUser')) || null;
 
 let currentPage = 1;
 const rowsPerPage = 10;
 let hasSearched = false; 
+
+// ==========================================================================
+// 3. LOGIC HỆ THỐNG VÀ XỬ LÝ SỰ KIỆN
+// ==========================================================================
 
 window.onload = function() {
     checkLoginStatus();
@@ -102,7 +109,6 @@ function fetchTaxData() {
                     }
                 }
                 
-                // Đồng bộ sắp xếp theo IDSUM để các dòng cùng IDSUM nằm cạnh nhau
                 allData.sort((a, b) => {
                     if (a.IDSUM && b.IDSUM) {
                         if (a.IDSUM === b.IDSUM) {
@@ -125,6 +131,7 @@ function fetchTaxData() {
 
 function initComboboxes() {
     const phuongXaSelect = document.getElementById('filterPhuongXa');
+    if (!phuongXaSelect) return;
     const currentPx = phuongXaSelect.value;
     const uniquePhuongXa = [...new Set(allData.map(item => item.PhuongXa).filter(Boolean))];
     
@@ -137,8 +144,11 @@ function initComboboxes() {
 }
 
 function updateThonToCombobox() {
-    const selectedPx = document.getElementById('filterPhuongXa').value;
+    const phuongXaSelect = document.getElementById('filterPhuongXa');
     const thonToSelect = document.getElementById('filterThonTo');
+    if (!phuongXaSelect || !thonToSelect) return;
+
+    const selectedPx = phuongXaSelect.value;
     const currentTt = thonToSelect.value;
     
     const filteredItems = selectedPx ? allData.filter(item => item.PhuongXa === selectedPx) : allData;
@@ -176,7 +186,6 @@ function searchData(isRealtimeUpdate = false) {
         });
     }
 
-    // XỬ LÝ TÌM KIẾM GẦN ĐÚNG THEO TÊN
     if (nameValueClean) {
         filteredData = filteredData.filter(item => {
             const rawFullName = (item.Ho || '') + " " + (item.Ten || '');
@@ -193,21 +202,21 @@ function searchData(isRealtimeUpdate = false) {
 
 function renderTable() {
     const tbody = document.getElementById('taxTableBody');
+    if (!tbody) return;
     tbody.innerHTML = "";
 
     if (!hasSearched) {
-        tbody.innerHTML = "<tr><td colspan='10' style='text-align:center; color: #64748b; padding: 20px;'>Vui lòng nhập điều kiện lọc và bấm nút 'Tìm kiếm' để tải dữ liệu</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='11' style='text-align:center; color: #64748b; padding: 20px;'>Vui lòng nhập điều kiện lọc và bấm nút 'Tìm kiếm' để tải dữ liệu</td></tr>";
         updatePaginationControls(0);
         return;
     }
 
     if (!filteredData || filteredData.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='10' style='text-align:center; padding: 20px;'>Không tìm thấy dữ liệu phù hợp với địa bàn của bạn</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='11' style='text-align:center; padding: 20px;'>Không tìm thấy dữ liệu phù hợp với địa bàn của bạn</td></tr>";
         updatePaginationControls(0);
         return;
     }
 
-    // 1. Tính tổng tiền tích lũy theo IDSUM toàn cục
     let idsumTotals = {};
     allData.forEach(item => {
         if(item.IDSUM) {
@@ -216,18 +225,17 @@ function renderTable() {
         }
     });
 
-    // 2. Phân trang dữ liệu
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
     const pageData = filteredData.slice(startIndex, endIndex);
 
-    // 3. Đếm số dòng xuất hiện của từng IDSUM trong trang hiện tại để tạo thuộc tính Rowspan
     let idsumCountsInPage = {};
     pageData.forEach(item => {
         if (item.IDSUM) {
             idsumCountsInPage[item.IDSUM] = (idsumCountsInPage[item.IDSUM] || 0) + 1;
         }
     });
+    
     let idsumRenderedMST = {};
     let idsumRenderedName = {};
     let idsumRenderedCCCD = {};
@@ -237,17 +245,13 @@ function renderTable() {
     let idsumRenderedStatus = {};
     let idsumRenderedAction = {};
 
-    // 4. Sinh các dòng của bảng
     pageData.forEach(item => {
         const tr = document.createElement('tr');
-        
         const isPaid = item.DaThanhToan === true || item.DaThanhToan === "true" || item.DaThanhToan === 1;
         const statusText = isPaid
             ? "<b style='color:#10b981;'>Đã thanh toán</b>" 
             : "<b style='color:#ef4444;'>Chưa thanh toán</b>";
         
-        // Cột 1: Mã số thuế
-        //tr.innerHTML += "<td>" + (item.MaSoThue || '') + "</td>";
         if (item.IDSUM && idsumCountsInPage[item.IDSUM] > 1) {
             if (!idsumRenderedMST[item.IDSUM]) {
                 tr.innerHTML += "<td rowspan='" + idsumCountsInPage[item.IDSUM] + "' style='vertical-align: middle; background-color: #ffffff;'>" + (item.MaSoThue || '') + "</td>";
@@ -257,7 +261,6 @@ function renderTable() {
             tr.innerHTML += "<td>" + (item.MaSoThue || '') + "</td>";
         }
         
-        // Cột 2: Họ và Tên (Gộp ô)
         if (item.IDSUM && idsumCountsInPage[item.IDSUM] > 1) {
             if (!idsumRenderedName[item.IDSUM]) {
                 tr.innerHTML += "<td rowspan='" + idsumCountsInPage[item.IDSUM] + "' style='vertical-align: middle; background-color: #ffffff; '>" + (item.Ho || '') + " " + (item.Ten || '') + "</td>";
@@ -267,7 +270,6 @@ function renderTable() {
             tr.innerHTML += "<td>" + (item.Ho || '') + " " + (item.Ten || '') + "</td>";
         }
 
-        // Cột 3: CCCD (Gộp ô tương tự Họ Tên)
         if (item.IDSUM && idsumCountsInPage[item.IDSUM] > 1) {
             if (!idsumRenderedCCCD[item.IDSUM]) {
                 tr.innerHTML += "<td rowspan='" + idsumCountsInPage[item.IDSUM] + "' style='vertical-align: middle; background-color: #ffffff;'>" + (item.CCCD || '') + "</td>";
@@ -277,8 +279,6 @@ function renderTable() {
             tr.innerHTML += "<td>" + (item.CCCD || '') + "</td>";
         }
 
-        // Cột 4, 5, 6: Địa bàn và số tiền lẻ dòng
-        //tr.innerHTML += "<td>" + (item.ThonTo || '') + "</td>";
         if (item.IDSUM && idsumCountsInPage[item.IDSUM] > 1) {
             if (!idsumRenderedThonTo[item.IDSUM]) {
                 tr.innerHTML += "<td rowspan='" + idsumCountsInPage[item.IDSUM] + "' style='vertical-align: middle; background-color: #ffffff;'>" + (item.ThonTo || '') + "</td>";
@@ -287,7 +287,7 @@ function renderTable() {
         } else {
             tr.innerHTML += "<td>" + (item.ThonTo || '') + "</td>";
         }
-        //tr.innerHTML += "<td>" + (item.PhuongXa || '') + "</td>";
+        
         if (item.IDSUM && idsumCountsInPage[item.IDSUM] > 1) {
             if (!idsumRenderedPhuongXa[item.IDSUM]) {
                 tr.innerHTML += "<td rowspan='" + idsumCountsInPage[item.IDSUM] + "' style='vertical-align: middle; background-color: #ffffff;'>" + (item.PhuongXa || '') + "</td>";
@@ -296,11 +296,11 @@ function renderTable() {
         } else {
             tr.innerHTML += "<td>" + (item.PhuongXa || '') + "</td>";
         }
+        
         tr.innerHTML += "<td>" + (item.MaPhiNN || '') + "</td>";
         tr.innerHTML += "<td>" + (item.TieuMuc || '') + "</td>";
         tr.innerHTML += "<td>" + (item.SoTienThuThue ? Number(item.SoTienThuThue).toLocaleString('vi-VN') : 0) + " đ</td>";
 
-        // Cột 7: Tổng tiền thanh toán nộp gộp (Gộp ô theo IDSUM)
         const totalGroupAmount = idsumTotals[item.IDSUM] || Number(item.SoTienThuThue) || 0;
         if (item.IDSUM && idsumCountsInPage[item.IDSUM] > 1) {
             if (!idsumRenderedTotal[item.IDSUM]) {
@@ -311,8 +311,6 @@ function renderTable() {
             tr.innerHTML += "<td style='font-weight: bold; color: #1e3a8a; text-align: right;'>" + totalGroupAmount.toLocaleString('vi-VN') + " đ</td>";
         }
 
-        // Cột 8: Trạng thái dòng lẻ
-        //tr.innerHTML += "<td>" + statusText + "</td>";
         if (item.IDSUM && idsumCountsInPage[item.IDSUM] > 1) {
             if (!idsumRenderedStatus[item.IDSUM]) {
                 tr.innerHTML += "<td rowspan='" + idsumCountsInPage[item.IDSUM] + "' style='vertical-align: middle; background-color: #ffffff;'>" + statusText + "</td>";
@@ -322,7 +320,6 @@ function renderTable() {
             tr.innerHTML += "<td>" + statusText + "</td>";
         }
         
-        // Cột 9: Hành động gộp chung duy nhất một nút bấm mã QR cho các dòng cùng IDSUM
         const targetIdSum = item.IDSUM || item.ID;
         if (item.IDSUM && idsumCountsInPage[item.IDSUM] > 1) {
             if (!idsumRenderedAction[item.IDSUM]) {
@@ -371,10 +368,8 @@ async function openQrPopupByIdSum(idsum) {
     const groupRecords = allData.filter(x => x.IDSUM === idsum || x.ID === idsum);
     if (groupRecords.length === 0) return;
 
-    const baseItem = groupRecords[0];
     currentSelectedIdSum = idsum; 
 
-    // Kiểm tra trạng thái gạt bật ON/OFF cho cục bộ
     const isAllPaid = groupRecords.every(item => item.DaThanhToan === true || item.DaThanhToan === "true" || item.DaThanhToan === 1);
 
     window.isUpdatingToggle = true; 
@@ -383,23 +378,13 @@ async function openQrPopupByIdSum(idsum) {
     document.getElementById('toggleStatusLabel').style.color = isAllPaid ? "#10b981" : "#ef4444";
     window.isUpdatingToggle = false;
 
-    // Ủy quyền gọi API tạo QR sang cho file bảo mật app.js kiểm tra bản quyền
     executeGenerateQr(BANK_ACCOUNT, BANK_BIN, allData, idsum);
 }
 
-// THAY THẾ HOÀN TOÀN HÀM verifyAndPayChange CŨ THÀNH HÀM MỚI DƯỚI ĐÂY:
 function verifyAndPayChange(el) {
-    // Lấy link kết nối database của họ từ thư viện V8 truyền sang thư viện V10 của file app.js
-    // Bản chất là chuyển đổi con trỏ kết nối Firebase để file B thực thi lệnh ghi dữ liệu
     const dbPartnerInstance = firebase.app().database(); 
-    
-    // Gọi hàm thực thi đồng bộ thuế hàng loạt sang file app.js để kiểm tra khóa hay mở
-    executeVerifyAndPayChange(el, dbPartnerInstance, allData, currentSelectedIdSum, renderTable, updateStats);
+    executeVerifyAndPayChange(el, dbPartnerInstance, allData, currentSelectedIdSum, renderTable, () => {});
 }
-
-// Đẩy các hàm này ra phạm vi Window để index.html gọi onclick/onchange bình thường
-window.openQrPopupByIdSum = openQrPopupByIdSum;
-window.verifyAndPayChange = verifyAndPayChange;
 
 function closePopup() {
     document.getElementById('qrPopup').classList.add('hidden');
@@ -427,26 +412,18 @@ function removeVietnameseTones(str) {
     return str.trim();
 }
 
-// Thay thế hoặc thêm hàm này vào cuối file script.js của trang chính (index.html)
 function goToChangePassPage() {
-    // Kiểm tra xem hệ thống đã có thông tin currentUser chưa
     if (currentUser && currentUser.username) {
-        
-        // Bước 1: Truy vấn Firebase một lần nữa để lấy chính xác id_key dựa vào username hiện tại
         db.ref('users').orderByChild('username').equalTo(currentUser.username).once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 let idKey = null;
-                
                 snapshot.forEach((childSnapshot) => {
-                    idKey = childSnapshot.key; // Lấy chính xác id_key (ví dụ: "canbo01", "user_123"...)
+                    idKey = childSnapshot.key; 
                 });
 
                 if (idKey) {
-                    // Bước 2: Lưu cả username và id_key vào sessionStorage
                     sessionStorage.setItem('changePassUsername', currentUser.username);
                     sessionStorage.setItem('changePassIdKey', idKey);
-                    
-                    // Bước 3: Chuyển hướng sang trang đổi mật khẩu độc lập
                     window.location.href = "changepass.html";
                 } else {
                     alert("Không thể xác định mã định danh (id_key) của tài khoản!");
@@ -457,58 +434,25 @@ function goToChangePassPage() {
         }).catch(err => {
             alert("Lỗi kết nối hệ thống: " + err.message);
         });
-        
     } else {
         alert("Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại!");
     }
 }
 
-// // Đẩy tất cả các hàm tương tác sự kiện HTML ra phạm vi toàn cục (Global)
-window.loginWithUsernamePassword = loginWithUsernamePassword;
-window.handleSearch = handleSearch;
-window.clearSearch = clearSearch;
-window.prevPage = prevPage;
-window.nextPage = nextPage;
-window.redirectToChangePassPage = redirectToChangePassPage;
-window.searchData = handleSearch;
-window.searchData = handleSearch; // Ánh xạ dự phòng lỗi searchData
-// 1. Khai báo lộ diện hàm Đăng xuất
-window.logout = logout;
-// 2. Khai báo lộ diện hàm Đổi mật khẩu gốc của bạn
-window.redirectToChangePassPage = redirectToChangePassPage;
-// 3. Tạo một liên kết ánh xạ (Alias) để nếu HTML gọi goToChangePassPage() thì hệ thống vẫn hiểu và chạy đúng
-window.goToChangePassPage = redirectToChangePassPage;
 // ==========================================================================
-// ĐẶT ĐOẠN NÀY ĐỘC LẬP Ở DƯỚI CÙNG CỦA FILE SCRIPT.JS
+// 4. ĐẨY TẤT CẢ CÁC HÀM RA PHẠM VI WINDOW ĐỂ HTML ONCLICK GỌI ĐƯỢC
 // ==========================================================================
-window.isUpdatingToggle = false; 
+window.isUpdatingToggle = false;
 window.clearCurrentSelectedIdSum = function() { currentSelectedIdSum = null; };
 
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Gắn sự kiện cho nút Tìm kiếm thông qua ID để sửa lỗi không nhận hàm
-    const btnSearch = document.getElementById("btnSearch");
-    if (btnSearch) {
-        btnSearch.addEventListener("click", () => {
-            handleSearch();
-        });
-    }
-
-    // 2. Gắn sự kiện thay đổi cho bộ chọn Xã
-    const selectXa = document.getElementById("selectXa");
-    if (selectXa) {
-        selectXa.addEventListener("change", () => {
-            updateThonToCombobox();
-        });
-    }
-
-    // 3. Khai báo lộ diện toàn bộ các hàm điều hướng khác ra phạm vi Window
-    if (typeof loginWithUsernamePassword === "function") window.loginWithUsernamePassword = loginWithUsernamePassword;
-    if (typeof clearSearch === "function") window.clearSearch = clearSearch;
-    if (typeof prevPage === "function") window.prevPage = prevPage;
-    if (typeof nextPage === "function") window.nextPage = nextPage;
-    if (typeof logout === "function") window.logout = logout;
-    if (typeof redirectToChangePassPage === "function") {
-        window.redirectToChangePassPage = redirectToChangePassPage;
-        window.goToChangePassPage = redirectToChangePassPage;
-    }
-});
+window.loginWithUsernamePassword = loginWithUsernamePassword;
+window.logout = logout;
+window.goToChangePassPage = goToChangePassPage;
+window.updateThonToCombobox = updateThonToCombobox;
+window.searchData = searchData;
+window.handleSearch = searchData; // Ánh xạ dự phòng nếu HTML gọi nhầm tên
+window.prevPage = prevPage;
+window.nextPage = nextPage;
+window.openQrPopupByIdSum = openQrPopupByIdSum;
+window.verifyAndPayChange = verifyAndPayChange;
+window.closePopup = closePopup;
