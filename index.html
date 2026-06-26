@@ -11,9 +11,10 @@
 
 <div id="loginWrapper" class="login-wrapper">
     <div id="loginSection">
-        
-        <h2><img src="https://www.inlogo.vn/wp-content/uploads/2023/04/logo-agribank.png" height=18 width=18 alt="Logo Agribank" class="title-logo">
-            AGRIBANK QUẢNG TRỊ</h2>
+        <h2>
+            <img src="https://www.inlogo.vn/wp-content/uploads/2023/04/logo-agribank.png" height="18" width="18" alt="Logo Agribank" class="title-logo">
+            AGRIBANK QUẢNG TRỊ
+        </h2>
         <div class="login-subtitle">Hỗ Trợ Thu Thuế Đất Phi Nông Nghiệp</div>
         
         <div class="input-group">
@@ -26,9 +27,8 @@
             <input type="password" id="loginPassword" placeholder="Nhập mật khẩu..." required>
         </div>
         
-        <button onclick="loginWithUsernamePassword()">Đăng nhập hệ thống</button>
+        <button onclick="window.loginWithUsernamePassword()">Đăng nhập hệ thống</button>
         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #cbd5e1;">
-
     </div>
 </div>
 
@@ -37,50 +37,42 @@
         <h2>AGRIBANK QUẢNG TRỊ - Hỗ Trợ Thu Thuế Đất Phi NN</h2>
         <div class="user-info-box">
             <span id="txtLoginUser" class="user-name">👤 Đang tải...</span>
-            <button onclick="logout()" class="btn-logout">Đăng xuất</button>
+            <button onclick="window.logout()" class="btn-logout">Đăng xuất</button>
         </div>
-         <!--CHANGE PASSWORD -->
-    <div style="margin-top: 20px; text-align: right;">
-    <button onclick="redirectToChangePassPage()" style=" background-color: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">
-        Đổi mật khẩu
-    </button>
-</div>
-    <!-- END -->
-        <div>
+        
+        <div style="margin-top: 20px; text-align: right;">
+            <button onclick="window.goToChangePassPage()" style="background-color: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; padding: 6px 12px;">
+                🔑 Đổi mật khẩu
+            </button>
         </div>
     </div>
 
     <div class="filter-box">
          <div class="filter-item">
-            <label>Phường/Xã:</label>
-            <select id="filterPhuongXa" onchange="updateThonToCombobox()">
+            <label for="filterPhuongXa">Phường/Xã:</label>
+            <select id="filterPhuongXa" onchange="window.updateThonToCombobox()">
                 <option value="">-- Tất cả Phường/Xã --</option>
             </select>
         </div>
-          <div class="filter-item">
-            <label>Thôn/Tổ:</label>
+        <div class="filter-item">
+            <label for="filterThonTo">Thôn/Tổ:</label>
             <select id="filterThonTo">
                 <option value="">-- Tất cả Thôn/Tổ --</option>
             </select>
         </div>
-        
-       
-        
         <div class="filter-item">
-            <label>Trạng thái:</label>
+            <label for="filterTrangThai">Trạng thái:</label>
             <select id="filterTrangThai">
                 <option value="">-- Tất cả Trạng thái --</option>
                 <option value="true">Đã thanh toán</option>
                 <option value="false">Chưa thanh toán</option>
             </select>
         </div>
-
         <div class="filter-item">
-            <label>Tìm theo Họ tên Người nộp thuế:</label>
+            <label for="searchName">Tìm theo Họ tên Người nộp thuế:</label>
             <input type="text" id="searchName" placeholder="Ví dụ: nguyen, van a, nguy...">
         </div>
-
-      <button id="btnSearch">Tìm kiếm</button>
+        <button id="btnSearch" class="btn-search">Tìm kiếm</button>
     </div>
  
     <div class="table-responsive">
@@ -111,9 +103,9 @@
     </div>
 
     <div class="pagination-box">
-        <button onclick="prevPage()" id="btnPrev">◀ Trước</button>
+        <button onclick="window.prevPage()" id="btnPrev">◀ Trước</button>
         <span id="pageInfo" class="page-info">Trang 1 / 1</span>
-        <button onclick="nextPage()" id="btnNext">Sau ▶</button>
+        <button onclick="window.nextPage()" id="btnNext">Sau ▶</button>
     </div>
 </div>
 
@@ -128,13 +120,13 @@
         <div class="status-toggle-zone">
             <span>Xác nhận đã nộp thuế</span>
             <label class="switch">
-                <input type="checkbox" id="switchPaymentStatus" onchange="verifyAndPayChange(this)">
+                <input type="checkbox" id="switchPaymentStatus" onchange="window.verifyAndPayChange(this)">
                 <span class="slider"></span>
             </label>
             <span id="toggleStatusLabel" style="font-weight: bold; min-width: 70px; text-align: right;">OFF</span>
         </div>
 
-        <button onclick="closePopup()" class="btn-popup-close">Quay trở lại (Cancel)</button>
+        <button onclick="window.closePopup()" class="btn-popup-close">Quay trở lại (Cancel)</button>
     </div>
 </div>
 
