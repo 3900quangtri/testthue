@@ -1,12 +1,16 @@
 // CẤU HÌNH NGÂN HÀNG ĐÍCH
 // LƯU Ý: Chuyển đổi mã chữ sang mã số BIN 6 số của Napas (VBA -> 970405) để API POST chạy được
 import { executeGenerateQr, executeVerifyAndPayChange } from "./app.js";
+// ==========================================================================
+// ĐẶT ĐOẠN NÀY Ở CUỐI CÙNG CỦA FILE SCRIPT.JS (SAU TẤT CẢ CÁC HÀM KHÁC)
+// ĐỂ ĐẢM BẢO TRÌNH DUYỆT ĐÃ TẢI XONG HÀM GỐC RỒI MỚI GẮN SỰ KIỆN KHÔNG BỊ LỖI
+// ==========================================================================
 window.isUpdatingToggle = false; 
 window.clearCurrentSelectedIdSum = function() { currentSelectedIdSum = null; };
 
-// Đợi giao diện HTML tải xong sẽ tự động gắn cổng lắng nghe sự kiện vào nút bấm
+// Đóng cổng liên kết lắng nghe tự động khi giao diện HTML sẵn sàng
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Gắn sự kiện Click cho nút Tìm kiếm thông qua ID
+    // 1. Gắn sự kiện cho nút Tìm kiếm thông qua ID
     const btnSearch = document.getElementById("btnSearch");
     if (btnSearch) {
         btnSearch.addEventListener("click", () => {
@@ -14,7 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. Khai báo lộ diện các hàm còn lại ra Window một cách an toàn
+    // 2. Gắn sự kiện thay đổi (change) cho bộ chọn Xã
+    const selectXa = document.getElementById("selectXa");
+    if (selectXa) {
+        selectXa.addEventListener("change", () => {
+            updateThonToCombobox();
+        });
+    }
+
+    // 3. Khai báo lộ diện toàn bộ các hàm điều hướng khác ra phạm vi Window
     if (typeof loginWithUsernamePassword === "function") window.loginWithUsernamePassword = loginWithUsernamePassword;
     if (typeof clearSearch === "function") window.clearSearch = clearSearch;
     if (typeof prevPage === "function") window.prevPage = prevPage;
