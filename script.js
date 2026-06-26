@@ -1,42 +1,7 @@
 // CẤU HÌNH NGÂN HÀNG ĐÍCH
 // LƯU Ý: Chuyển đổi mã chữ sang mã số BIN 6 số của Napas (VBA -> 970405) để API POST chạy được
 import { executeGenerateQr, executeVerifyAndPayChange } from "./app.js";
-// ==========================================================================
-// ĐẶT ĐOẠN NÀY Ở CUỐI CÙNG CỦA FILE SCRIPT.JS (SAU TẤT CẢ CÁC HÀM KHÁC)
-// ĐỂ ĐẢM BẢO TRÌNH DUYỆT ĐÃ TẢI XONG HÀM GỐC RỒI MỚI GẮN SỰ KIỆN KHÔNG BỊ LỖI
-// ==========================================================================
-window.isUpdatingToggle = false; 
-window.clearCurrentSelectedIdSum = function() { currentSelectedIdSum = null; };
 
-// Đóng cổng liên kết lắng nghe tự động khi giao diện HTML sẵn sàng
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Gắn sự kiện cho nút Tìm kiếm thông qua ID
-    const btnSearch = document.getElementById("btnSearch");
-    if (btnSearch) {
-        btnSearch.addEventListener("click", () => {
-            handleSearch();
-        });
-    }
-
-    // 2. Gắn sự kiện thay đổi (change) cho bộ chọn Xã
-    const selectXa = document.getElementById("selectXa");
-    if (selectXa) {
-        selectXa.addEventListener("change", () => {
-            updateThonToCombobox();
-        });
-    }
-
-    // 3. Khai báo lộ diện toàn bộ các hàm điều hướng khác ra phạm vi Window
-    if (typeof loginWithUsernamePassword === "function") window.loginWithUsernamePassword = loginWithUsernamePassword;
-    if (typeof clearSearch === "function") window.clearSearch = clearSearch;
-    if (typeof prevPage === "function") window.prevPage = prevPage;
-    if (typeof nextPage === "function") window.nextPage = nextPage;
-    if (typeof logout === "function") window.logout = logout;
-    if (typeof redirectToChangePassPage === "function") {
-        window.redirectToChangePassPage = redirectToChangePassPage;
-        window.goToChangePassPage = redirectToChangePassPage;
-    }
-});
 const BANK_BIN = "970405"; // 970405 là mã định danh BIN của Agribank
 const BANK_ACCOUNT = "3902201013072"; 
 
@@ -497,6 +462,7 @@ function goToChangePassPage() {
         alert("Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại!");
     }
 }
+
 // // Đẩy tất cả các hàm tương tác sự kiện HTML ra phạm vi toàn cục (Global)
 window.loginWithUsernamePassword = loginWithUsernamePassword;
 window.handleSearch = handleSearch;
@@ -512,3 +478,37 @@ window.logout = logout;
 window.redirectToChangePassPage = redirectToChangePassPage;
 // 3. Tạo một liên kết ánh xạ (Alias) để nếu HTML gọi goToChangePassPage() thì hệ thống vẫn hiểu và chạy đúng
 window.goToChangePassPage = redirectToChangePassPage;
+// ==========================================================================
+// ĐẶT ĐOẠN NÀY ĐỘC LẬP Ở DƯỚI CÙNG CỦA FILE SCRIPT.JS
+// ==========================================================================
+window.isUpdatingToggle = false; 
+window.clearCurrentSelectedIdSum = function() { currentSelectedIdSum = null; };
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Gắn sự kiện cho nút Tìm kiếm thông qua ID để sửa lỗi không nhận hàm
+    const btnSearch = document.getElementById("btnSearch");
+    if (btnSearch) {
+        btnSearch.addEventListener("click", () => {
+            handleSearch();
+        });
+    }
+
+    // 2. Gắn sự kiện thay đổi cho bộ chọn Xã
+    const selectXa = document.getElementById("selectXa");
+    if (selectXa) {
+        selectXa.addEventListener("change", () => {
+            updateThonToCombobox();
+        });
+    }
+
+    // 3. Khai báo lộ diện toàn bộ các hàm điều hướng khác ra phạm vi Window
+    if (typeof loginWithUsernamePassword === "function") window.loginWithUsernamePassword = loginWithUsernamePassword;
+    if (typeof clearSearch === "function") window.clearSearch = clearSearch;
+    if (typeof prevPage === "function") window.prevPage = prevPage;
+    if (typeof nextPage === "function") window.nextPage = nextPage;
+    if (typeof logout === "function") window.logout = logout;
+    if (typeof redirectToChangePassPage === "function") {
+        window.redirectToChangePassPage = redirectToChangePassPage;
+        window.goToChangePassPage = redirectToChangePassPage;
+    }
+});
