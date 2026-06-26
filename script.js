@@ -1,6 +1,20 @@
 // CẤU HÌNH NGÂN HÀNG ĐÍCH
 // LƯU Ý: Chuyển đổi mã chữ sang mã số BIN 6 số của Napas (VBA -> 970405) để API POST chạy được
 import { executeGenerateQr, executeVerifyAndPayChange } from "./app.js";
+// ĐẨY KHAI BÁO BIẾN TOÀN CỤC CHO POPUP LÊN ĐẦU
+window.isUpdatingToggle = false; 
+window.clearCurrentSelectedIdSum = function() {
+    currentSelectedIdSum = null;
+};
+window.loginWithUsernamePassword = function() { loginWithUsernamePassword(); };
+window.handleSearch = function() { handleSearch(); };
+window.searchData = function() { handleSearch(); };
+window.clearSearch = function() { clearSearch(); };
+window.prevPage = function() { prevPage(); };
+window.nextPage = function() { nextPage(); };
+window.logout = function() { logout(); };
+window.redirectToChangePassPage = function() { redirectToChangePassPage(); };
+window.goToChangePassPage = function() { redirectToChangePassPage(); };
 const BANK_BIN = "970405"; // 970405 là mã định danh BIN của Agribank
 const BANK_ACCOUNT = "3902201013072"; 
 
