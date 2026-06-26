@@ -5,9 +5,9 @@ import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/fireb
 // 1. CẤU HÌNH FIREBASE BẢN QUYỀN CỦA BẠN (Dùng tài khoản độc lập của bạn)
 // ==========================================================================
 const mySecretConfig = {
-    apiKey: "API_KEY_BẢO_MẬT_CỦA_BẠN",
-    databaseURL: "URL_FIREBASE_CỦA_BẠN",
-    projectId: "PROJECT_ID_CỦA_BẠN"
+    apiKey: "AIzaSyB4crlGh-TWjsaaGVNDbod0yZ6gdD70aAc",
+    databaseURL: "https://ht-thue-e9d26-default-rtdb.firebaseio.com",
+    projectId: "ht-thue-e9d26"
 };
 
 const appSecure = initializeApp(mySecretConfig, "SecureLicenseApp");
