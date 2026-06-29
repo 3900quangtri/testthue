@@ -7,7 +7,7 @@ import { executeGenerateQr, executeVerifyAndPayChange } from "./app.js";
 // 2. CẤU HÌNH NGÂN HÀNG ĐÍCH & FIREBASE
 // ==========================================================================
 const BANK_BIN = "970405"; // Mã định danh BIN của Agribank
-const BANK_ACCOUNT = "3902201013072"; 
+const BANK_ACCOUNT = "3800205138888"; 
 
 const firebaseConfig = {
     apiKey: "AIzaSyAOSKLNPXp-s40iJNYYzdEWDnQDFoa6x_Q",
