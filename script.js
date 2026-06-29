@@ -10,13 +10,13 @@ const BANK_BIN = "970405"; // Mã định danh BIN của Agribank
 const BANK_ACCOUNT = "3902201013072"; 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAOSKLNPXp-s40iJNYYzdEWDnQDFoa6x_Q",
-    authDomain: "thue2026-f558d.firebaseapp.com",
-    databaseURL: "https://thue2026-f558d-default-rtdb.firebaseio.com",
-    projectId: "thue2026-f558d",
-    storageBucket: "thue2026-f558d.firebasestorage.app",
-    messagingSenderId: "1008017359572",
-    appId: "1:1008017359572:web:f70cf40778e600e8deb141"
+    apiKey: "AIzaSyDabRjEULSZ3U_1hu_JNw9yf_kK-M_sgjM",
+  authDomain: "testhd-85525.firebaseapp.com",
+  databaseURL: "https://testhd-85525-default-rtdb.firebaseio.com",
+  projectId: "testhd-85525",
+  storageBucket: "testhd-85525.firebasestorage.app",
+  messagingSenderId: "609166109513",
+  appId: "1:609166109513:web:cfbc73bc9268e3509b8898"
 };
 
 // Khởi tạo Firebase nếu chưa có
